@@ -311,13 +311,13 @@ func authzTypes(schemas *types.Schemas) *types.Schemas {
 		// MustImport(&Version, v3.SetPodSecurityPolicyTemplateInput{}).
 		MustImport(&Version, v3.ImportYamlOutput{}).
 		MustImportAndCustomize(&Version, v3.Project{}, func(schema *types.Schema) {
-			schema.ResourceActions = map[string]types.Action{
-				"setpodsecuritypolicytemplate": {
-					Input:  "setPodSecurityPolicyTemplateInput",
-					Output: "project",
-				},
-				"exportYaml": {},
-			}
+			// schema.ResourceActions = map[string]types.Action{
+			// 	"setpodsecuritypolicytemplate": {
+			// 		Input:  "setPodSecurityPolicyTemplateInput",
+			// 		Output: "project",
+			// 	},
+			// 	"exportYaml": {},
+			// }
 		}).
 		MustImportAndCustomize(&Version, v3.GlobalRole{}, func(s *types.Schema) {
 			s.MustCustomizeField("status", func(field types.Field) types.Field {
