@@ -11,7 +11,7 @@ import (
 	"github.com/rancher/shepherd/pkg/schemas/factory"
 	"github.com/rancher/shepherd/pkg/schemas/mapper"
 	v1 "k8s.io/api/core/v1"
-	apiserverconfig "k8s.io/apiserver/pkg/apis/config"
+	apiserverconfig "k8s.io/apiserver/pkg/apis/apiserver"
 )
 
 var (
