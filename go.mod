@@ -4,7 +4,7 @@ go 1.22.0
 
 toolchain go1.22.3
 
-
+replace github.com/rancher/rancher/pkg/apis => github.com/vardhaman22/rancher/pkg/apis v0.0.0-20240619051441-656b5afd821d
 
 replace (
 	k8s.io/api => k8s.io/api v0.30.1
@@ -29,10 +29,10 @@ require (
 	github.com/pkg/sftp v1.13.5
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.52.0
 	github.com/rancher/apiserver v0.0.0-20240604183424-8c448886365e
-	github.com/rancher/fleet/pkg/apis v0.0.0-20231017140638-93432f288e79
+	github.com/rancher/fleet/pkg/apis v0.10.0-rc.16
 	github.com/rancher/lasso v0.0.0-20240603075835-701e919d08b7
 	github.com/rancher/norman v0.0.0-20240604183301-20cd23aadce1
-	github.com/rancher/rancher/pkg/apis v0.0.0-20240529155832-64dbde013b4c
+	github.com/rancher/rancher/pkg/apis v0.0.0-20240613110601-c21147a009c6
 	github.com/rancher/rke v1.6.0-rc7
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20210727200656-10b094e30007
 	github.com/rancher/types v0.0.0-20220328215343-4370ff10ecd5
@@ -139,9 +139,9 @@ require (
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
-	github.com/rancher/aks-operator v1.9.0-rc.6 // indirect
-	github.com/rancher/eks-operator v1.9.0-rc.5 // indirect
-	github.com/rancher/gke-operator v1.9.0-rc.4 // indirect
+	github.com/rancher/aks-operator v1.9.0-rc.8 // indirect
+	github.com/rancher/eks-operator v1.9.0-rc.8 // indirect
+	github.com/rancher/gke-operator v1.9.0-rc.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
