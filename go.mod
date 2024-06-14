@@ -4,7 +4,7 @@ go 1.22.0
 
 toolchain go1.22.3
 
-
+replace github.com/rancher/rancher/pkg/apis => github.com/vardhaman22/rancher/pkg/apis v0.0.0-20240614154649-78445f4efb68
 
 replace (
 	k8s.io/api => k8s.io/api v0.30.1
