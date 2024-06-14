@@ -37,7 +37,6 @@ require (
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20210727200656-10b094e30007
 	github.com/rancher/types v0.0.0-20220328215343-4370ff10ecd5
 	github.com/rancher/wrangler v1.1.2
-	github.com/rancher/wrangler/v2 v2.2.0-rc6
 	github.com/rancher/wrangler/v3 v3.0.0-rc2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
@@ -142,6 +141,7 @@ require (
 	github.com/rancher/aks-operator v1.9.0-rc.8 // indirect
 	github.com/rancher/eks-operator v1.9.0-rc.8 // indirect
 	github.com/rancher/gke-operator v1.9.0-rc.7 // indirect
+	github.com/rancher/wrangler/v2 v2.2.0-rc6 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
