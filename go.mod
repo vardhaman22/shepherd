@@ -4,6 +4,12 @@ go 1.22.0
 
 toolchain go1.22.3
 
+replace (
+	github.com/rancher/aks-operator => github.com/vardhaman22/aks-operator v1.30.0-rancher4
+	github.com/rancher/eks-operator => github.com/vardhaman22/eks-operator v1.30.0-rancher4
+	github.com/rancher/gke-operator => github.com/vardhaman22/gke-operator v1.30.0-rancher4
+)
+
 replace github.com/rancher/rancher/pkg/apis => github.com/vardhaman22/rancher/pkg/apis v0.0.0-20240614154649-78445f4efb68
 
 replace (
