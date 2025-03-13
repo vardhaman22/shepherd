@@ -1,4 +1,4 @@
-package aws
+package alibaba
 
 import (
 	"github.com/rancher/shepherd/clients/rancher"
@@ -15,22 +15,22 @@ import (
 )
 
 // CreateAWSCloudCredentials is a helper function that creates V1 cloud credentials and waits for them to become active.
-func CreateAWSCloudCredentials(client *rancher.Client, credentials cloudcredentials.CloudCredential) (*v1.SteveAPIObject, error) {
-	secretName := namegenerator.AppendRandomString(providers.Alibaba)
+func CreateAlibabaCloudCredentials(client *rancher.Client, credentials cloudcredentials.CloudCredential) (*v1.SteveAPIObject, error) {
+	secretName := namegenerator.AppendRandomString(providers.AWS)
 	spec := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: cloudcredentials.GeneratedName,
 			Namespace:    namespaces.CattleData,
 			Annotations: map[string]string{
-				"provisioning.cattle.io/driver": providers.AWS,
+				"provisioning.cattle.io/driver": providers.Alibaba,
 				"field.cattle.io/name":          secretName,
 				"field.cattle.io/creatorId":     client.UserID,
 			},
 		},
 		Data: map[string][]byte{
-			"amazonec2credentialConfig-accessKey":     []byte(credentials.AmazonEC2CredentialConfig.AccessKey),
-			"amazonec2credentialConfig-secretKey":     []byte(credentials.AmazonEC2CredentialConfig.SecretKey),
-			"amazonec2credentialConfig-defaultRegion": []byte(credentials.AmazonEC2CredentialConfig.DefaultRegion),
+			"alibabacloudcredentialConfig-accessKeyId":     []byte(credentials.AlibabaECSCredentialConfig.AccessKeyId),
+			"alibabacloudcredentialConfig-accessKeySecret": []byte(credentials.AlibabaECSCredentialConfig.AccessKeySecret),
+			"alibabacloudcredentialConfig-apiEndpoint":     []byte(credentials.AlibabaECSCredentialConfig.ApiEndpoint),
 		},
 		Type: corev1.SecretTypeOpaque,
 	}
