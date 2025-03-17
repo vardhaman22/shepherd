@@ -94,6 +94,14 @@ func LoadCloudCredential(provider string) CloudCredential {
 
 		return cloudCredential
 
+	case provider == providers.Alibaba:
+		var alibabaCredentialConfig AlibabaECSCredentialConfig
+
+		config.LoadConfig(AlibabaCredentialConfigurationFileKey, &alibabaCredentialConfig)
+		cloudCredential.AlibabacloudCredentialConfig = &alibabaCredentialConfig
+
+		return cloudCredential
+
 	default:
 		panic(fmt.Sprintf("Provider:%v not found", provider))
 	}
