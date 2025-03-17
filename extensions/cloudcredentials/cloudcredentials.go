@@ -29,7 +29,7 @@ type CloudCredential struct {
 	HarvesterCredentialConfig    *HarvesterCredentialConfig     `json:"harvestercredentialConfig,omitempty"`
 	GoogleCredentialConfig       *GoogleCredentialConfig        `json:"googlecredentialConfig,omitempty"`
 	VmwareVsphereConfig          *VmwarevsphereCredentialConfig `json:"vmwarevspherecredentialConfig,omitempty"`
-	AlibabaECSCredentialConfig   *AlibabaECSCredentialConfig    `json:"amazonec2credentialConfig,omitempty"`
+	AlibabacloudCredentialConfig *AlibabaECSCredentialConfig    `json:"alibabacloudcredentialConfig,omitempty"`
 	UUID                         string                         `json:"uuid,omitempty"`
 }
 

@@ -16,7 +16,7 @@ import (
 
 // CreateAWSCloudCredentials is a helper function that creates V1 cloud credentials and waits for them to become active.
 func CreateAlibabaCloudCredentials(client *rancher.Client, credentials cloudcredentials.CloudCredential) (*v1.SteveAPIObject, error) {
-	secretName := namegenerator.AppendRandomString(providers.AWS)
+	secretName := namegenerator.AppendRandomString(providers.Alibaba)
 	spec := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: cloudcredentials.GeneratedName,
@@ -28,9 +28,9 @@ func CreateAlibabaCloudCredentials(client *rancher.Client, credentials cloudcred
 			},
 		},
 		Data: map[string][]byte{
-			"alibabacloudcredentialConfig-accessKeyId":     []byte(credentials.AlibabaECSCredentialConfig.AccessKeyId),
-			"alibabacloudcredentialConfig-accessKeySecret": []byte(credentials.AlibabaECSCredentialConfig.AccessKeySecret),
-			"alibabacloudcredentialConfig-apiEndpoint":     []byte(credentials.AlibabaECSCredentialConfig.ApiEndpoint),
+			"alibabacloudcredentialConfig-accessKeyId":     []byte(credentials.AlibabacloudCredentialConfig.AccessKeyId),
+			"alibabacloudcredentialConfig-accessKeySecret": []byte(credentials.AlibabacloudCredentialConfig.AccessKeySecret),
+			"alibabacloudcredentialConfig-apiEndpoint":     []byte(credentials.AlibabacloudCredentialConfig.ApiEndpoint),
 		},
 		Type: corev1.SecretTypeOpaque,
 	}
