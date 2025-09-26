@@ -188,7 +188,7 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 							Image:   imageSetting.Value,
 							Command: []string{"/bin/sh", "-c"},
 							Args: []string{
-								fmt.Sprintf("wget -qO- --tries=10 --no-check-certificate %s | kubectl apply -f - ;", token.ManifestURL),
+								fmt.Sprintf("curl --insecure -sfL --retry 10 %s | kubectl apply -f - ;", token.ManifestURL),
 							},
 							SecurityContext: &corev1.SecurityContext{
 								RunAsUser:  &user,
@@ -235,8 +235,8 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 		if err != nil {
 			logrus.Info("error converting event object to job")
 		} else {
-			logrus.Infof("job active: %v", wj1.Status.Succeeded)
-			logrus.Infof("job succeed: %v", wj1.Status.Active)
+			logrus.Infof("job secceeded: %v", wj1.Status.Succeeded)
+			logrus.Infof("job active: %v", wj1.Status.Active)
 			logrus.Infof("job failed: %v", wj1.Status.Failed)
 			wj1Bytes, _ := json.Marshal(wj1.Status)
 			fmt.Println(string(wj1Bytes))
