@@ -12,6 +12,7 @@ import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 	ext_unstructured "github.com/rancher/shepherd/extensions/unstructured"
 	"github.com/rancher/shepherd/pkg/wait"
+	"github.com/sirupsen/logrus"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 
@@ -62,6 +63,8 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 	ts := client.Session.NewSession()
 	defer ts.Cleanup()
 
+	logrus.Infof("Importing cluster %s", cluster.Name)
+
 	backoff := kwait.Backoff{
 		Duration: 1 * time.Second,
 		Factor:   1.1,
@@ -69,6 +72,7 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 		Steps:    20,
 	}
 
+	logrus.Infof("Getting cluster registration token for %s", cluster.Name)
 	var token management.ClusterRegistrationToken
 	err := kwait.ExponentialBackoff(backoff, func() (finished bool, err error) {
 		res, err := client.Management.ClusterRegistrationToken.List(&types.ListOpts{Filters: map[string]interface{}{
@@ -88,18 +92,21 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 	if err != nil {
 		return err
 	}
+	logrus.Infof("Successfully got cluster registration token for %s", cluster.Name)
 
+	logrus.Infof("Creating new dynamic client for %s", cluster.Name)
 	downClient, err := dynamic.NewForConfig(ts, rest)
 	if err != nil {
 		return err
 	}
-
+	logrus.Infof("Successfully created new dynamic client for %s", cluster.Name)
 	sa := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "rancher-installer",
 		},
 	}
 
+	logrus.Infof("Waiting for service accounts to be available in kube-system namespace for %s", cluster.Name)
 	kwait.ExponentialBackoff(backoff, func() (finished bool, err error) {
 		_, err = downClient.Resource(corev1.SchemeGroupVersion.WithResource("serviceaccounts")).Namespace("kube-system").List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
@@ -108,12 +115,14 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 
 		return true, nil
 	})
+	logrus.Infof("Service accounts are available in kube-system namespace for %s", cluster.Name)
 
+	logrus.Infof("Creating service account %s in kube-system namespace for %s", sa.Name, cluster.Name)
 	_, err = downClient.Resource(corev1.SchemeGroupVersion.WithResource("serviceaccounts")).Namespace("kube-system").Create(context.TODO(), ext_unstructured.MustToUnstructured(sa), metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
-
+	logrus.Infof("Successfully created service account %s in kube-system namespace for %s", sa.Name, cluster.Name)
 	rb := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "rancher-install-cluster-admin",
@@ -131,11 +140,12 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 			Name:     "cluster-admin",
 		},
 	}
+	logrus.Infof("Creating cluster role binding %s for %s", rb.Name, cluster.Name)
 	_, err = downClient.Resource(rbacv1.SchemeGroupVersion.WithResource("clusterrolebindings")).Namespace("").Create(context.TODO(), ext_unstructured.MustToUnstructured(rb), metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
-
+	logrus.Infof("Successfully created cluster role binding %s for %s", rb.Name, cluster.Name)
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "kubeconfig",
@@ -144,16 +154,19 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 			"config": kubeConfig,
 		},
 	}
+	logrus.Infof("Creating config map %s in kube-system namespace for %s", cm.Name, cluster.Name)
 	_, err = downClient.Resource(corev1.SchemeGroupVersion.WithResource("configmaps")).Namespace("kube-system").Create(context.TODO(), ext_unstructured.MustToUnstructured(cm), metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
+	logrus.Infof("Successfully created config map %s in kube-system namespace for %s", cm.Name, cluster.Name)
 
+	logrus.Infof("Getting shell image setting")
 	imageSetting, err := client.Management.Setting.ByID(rancherShellSettingID)
 	if err != nil {
 		return err
 	}
-
+	logrus.Infof("Successfully got shell image setting: %s", imageSetting.Value)
 	var user int64
 	var group int64
 	job := &batchv1.Job{
@@ -199,11 +212,14 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 			},
 		},
 	}
+	logrus.Infof("Creating import job %s in kube-system namespace for %s", job.Name, cluster.Name)
 	_, err = downClient.Resource(batchv1.SchemeGroupVersion.WithResource("jobs")).Namespace("kube-system").Create(context.TODO(), ext_unstructured.MustToUnstructured(job), metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
+	logrus.Infof("Successfully created import job %s in kube-system namespace for %s", job.Name, cluster.Name)
 
+	logrus.Infof("Watching import job %s in kube-system namespace for %s", job.Name, cluster.Name)
 	jobWatch, err := downClient.Resource(batchv1.SchemeGroupVersion.WithResource("jobs")).Namespace("kube-system").Watch(context.TODO(), metav1.ListOptions{
 		FieldSelector:  fields.OneTermEqualSelector("metadata.name", job.Name).String(),
 		TimeoutSeconds: &importTimeout,
@@ -213,6 +229,7 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 	}
 
 	err = wait.WatchWait(jobWatch, func(event watch.Event) (bool, error) {
+		logrus.Infof("received event %+v", event)
 		var wj batchv1.Job
 		_ = runtime.DefaultUnstructuredConverter.FromUnstructured(event.Object.(*unstructured.Unstructured).Object, &wj)
 		return wj.Status.Succeeded == 1, nil
@@ -220,7 +237,7 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 	if err != nil {
 		return err
 	}
-
+	logrus.Infof("Import job %s in kube-system namespace for %s completed successfully", job.Name, cluster.Name)
 	return nil
 }
 
