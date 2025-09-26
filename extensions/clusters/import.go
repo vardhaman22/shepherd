@@ -2,6 +2,7 @@ package clusters
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -229,7 +230,19 @@ func ImportCluster(client *rancher.Client, cluster *apisV1.Cluster, rest *rest.C
 	}
 
 	err = wait.WatchWait(jobWatch, func(event watch.Event) (bool, error) {
-		logrus.Infof("received event %+v", event)
+		var wj1 batchv1.Job
+		err = runtime.DefaultUnstructuredConverter.FromUnstructured(event.Object.DeepCopyObject().(*unstructured.Unstructured).Object, &wj1)
+		if err != nil {
+			logrus.Info("error converting event object to job")
+		} else {
+			logrus.Infof("job active: %v", wj1.Status.Succeeded)
+			logrus.Infof("job succeed: %v", wj1.Status.Active)
+			logrus.Infof("job failed: %v", wj1.Status.Failed)
+			wj1Bytes, _ := json.Marshal(wj1.Status)
+			fmt.Println(string(wj1Bytes))
+		}
+
+		logrus.Infof("received event %+v", event.Object.DeepCopyObject())
 		var wj batchv1.Job
 		_ = runtime.DefaultUnstructuredConverter.FromUnstructured(event.Object.(*unstructured.Unstructured).Object, &wj)
 		return wj.Status.Succeeded == 1, nil
